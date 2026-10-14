@@ -224,10 +224,14 @@ labelling and the report run on the laptop in seconds, so iteration is fast and 
 
 ### Future work
 
-- Metric scale from the floor-to-ceiling height or a known object, so every sheet is in metres.
-- Minimum-area footprint rectangles instead of 3D OBB hulls on the plan.
-- Evaluation on [PASLCD](https://chumsy0725.github.io/MV-3DCD/) indoor scenes (precision and recall per change type).
-- Per-scene null threshold from unchanged objects, as in GS-Pool, to replace the fixed free-vote count.
+In priority order; evidence, plug-in points and costs in [`docs/UPGRADE_PLAN.md`](docs/UPGRADE_PLAN.md).
+
+- Metric scale from MoGe-2 by a median depth-ratio fit, so every sheet is in metres.
+- Hybrid registration (dense pass per capture + small joint pass + Sim(3) + static purification) as the fallback when the joint pass smears.
+- Per-scene null-calibrated depth tolerance and log-odds free-space accumulation instead of fixed thresholds and vote counts.
+- SAM-mask lifting for blob extents and minimum-area footprints on the plan.
+- DINOv3 descriptors with ICP verification for moved-object matching, and a lighting-nuisance guard.
+- PASLCD benchmark harness (mIoU and F1 against GS-Pool's 0.751).
 
 &nbsp;
 
