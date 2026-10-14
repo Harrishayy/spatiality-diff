@@ -2,8 +2,7 @@
 
 **Two phone videos of the same room → one shared 3D scene → what was added, removed or moved, drawn on a plan with the frames that prove it.**
 
-Submission for Humanoid's *What Changed in the Room?* intern challenge. Successor to
-[spatiality_v2](https://github.com/Harrishayy/spatiality_v2) (one video → 3D + labels).
+Successor to [spatiality_v2](https://github.com/Harrishayy/spatiality_v2) (one video → 3D + labels).
 
 From two 20–40 second handheld captures, the pipeline runs three stages that feed one viewer:
 
