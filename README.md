@@ -38,10 +38,14 @@ PYTHONPATH=tests python scripts/make_demo.py
 cd web && pnpm install && pnpm dev        # http://localhost:3000/scenes/synthetic_room
 
 # 2. Your own videos (Modal for the GPU step; see .env.example for keys)
-cp .env.example .env                      # GEMINI_API_KEY, HF_TOKEN
-modal token new && modal deploy backend/modal_app.py
+cp .env.example .env                      # GEMINI_API_KEY for labels; HF_TOKEN lives in the Modal secret `huggingface`
+modal token new && (cd backend && modal deploy modal_app.py)
+(cd backend && modal run modal_app.py --access)      # which weights this workspace can download
 spatiality-diff run --before before.mp4 --after after.mp4 --out outputs/my_room
 ```
+
+The Modal app `spatiality-diff` has two functions: `reconstruct` (the joint pass, A100-40GB, weights cached in a
+volume) and `check_access` (tests the Hugging Face token against the three checkpoints without a forward pass).
 
 `spatiality-diff run` is cached per stage: re-running after a crash or a parameter change skips the GPU pass.
 
@@ -94,15 +98,24 @@ A change in `changes.json`:
 there. `coverage` at the top of the file is the share of the before scene the after capture observed at all, so a
 "no changes" result is interpretable.
 
-## Viewer
+## Viewer: a change survey drawing
 
-Next.js 16 + React 19 + three.js. Reads `outputs/` in place through one file route. Diff view by default: stable
-cloud dimmed, added in green, removed as a red ghost at the old pose, moved with an arrow from old to new centroid,
-unobserved regions hatched grey. Click a row or a blob to select; the evidence pair opens over the viewport.
-Keys: 1 to 4 switch views, U toggles unobserved, Esc clears.
+Next.js 16 + React 19 + three.js. Reads `outputs/` in place through one file route.
 
-The visual language is specified in the Spatiality Diff design system (tokens, components, copy rules), which the
-viewer's `globals.css` mirrors.
+The viewer is drawn the way a surveyor marks a site drawing. The primary view is a top-down **plan** of the room,
+shaded by height, with every finding as a numbered **callout balloon** and a footprint: added is a solid outline with a
+light fill, removed is a dashed outline with hatching where the object stood, moved is both footprints with an arrow and
+a **dimension line** reading the displacement in metres. Points the second capture never looked at are drawn with
+diagonal ticks, so "not inspected" never looks like "unchanged". Both camera paths, a scale bar, a legend and a title
+block complete the sheet. A **3D** view shows the same scene with the same balloons.
+
+Findings run along the bottom like a revision table. Selecting one opens a detail sheet with the finding sentence, a
+"why" sentence citing the frame counts, the before and after frames, a measurements table, and **Accept / Reject**.
+**Start review** steps through the findings one at a time; verdicts persist in the browser and are included in
+**Copy changes.json** so a planner can consume the reviewed result.
+
+Keys: `p` plan, `d` 3D, `b` swap base capture, `1`..`9` select, `←` `→` step, `a` accept, `r` reject, `u` toggle
+unobserved, `c` toggle cameras, `esc` close. Paper theme by day, blueprint by night.
 
 ## Project structure
 
@@ -139,9 +152,9 @@ mostly unobserved rather than mostly removed.
 
 - [x] Visibility-aware diff, clustering, moved matching: tested on the synthetic room
 - [x] Viewer: builds, renders the synthetic scene
-- [x] Modal function and local script for VGGT-Omega / VGGT / Pi3X
-- [ ] First run on real phone videos (needs HF access to VGGT-Omega weights and a Modal deploy)
-- [ ] Verify the VGGT-Omega and Pi3X import paths against the current repos on first run
+- [x] Modal app deployed; VGGT-Omega, VGGT-1B and Pi3X weights all download with the workspace token
+- [x] End-to-end run on Modal (synthetic test videos in `examples/synthetic_room/`)
+- [ ] First run on real phone videos
 - [ ] Metric scale estimate from floor-to-ceiling height
 - [ ] Evaluation on PASLCD indoor scenes
 

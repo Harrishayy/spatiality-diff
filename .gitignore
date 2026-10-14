@@ -18,3 +18,6 @@ web/.next/
 web/out/
 # os
 .DS_Store
+
+# keep the tiny synthetic test clips
+!examples/synthetic_room/*.mp4

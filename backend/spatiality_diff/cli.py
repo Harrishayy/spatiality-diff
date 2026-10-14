@@ -19,6 +19,11 @@ app = typer.Typer(add_completion=False, help="What changed in the room?")
 load_dotenv()
 
 
+@app.callback()
+def _root():
+    """spatiality-diff: two phone videos of a room -> a change survey (`run`)."""
+
+
 def _log(stage: str, t0: float):
     typer.echo(f"[{stage}] {time.time() - t0:6.1f}s")
 
